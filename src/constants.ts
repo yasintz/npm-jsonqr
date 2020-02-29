@@ -1,8 +1,19 @@
-const NONE_TYPE = '#?:';
-const CURRENT_ITEM_FILTER_KEY = '*';
-const ALL_ITEM_KEY = '...';
+const CURRENT_ITEM_KEY = '*';
+const ROOT_PREFIX = 'Root';
+const ALL_ITEM_PREFIX = '$';
+const HELPERS_PREFIX = '>';
 
-export { CURRENT_ITEM_FILTER_KEY, ALL_ITEM_KEY, NONE_TYPE };
+const DONE_HELPER_PREFIX = '__DONE__';
+const NONE_TYPE = '__NODE_TYPE__';
+
+export {
+  CURRENT_ITEM_KEY,
+  NONE_TYPE,
+  HELPERS_PREFIX,
+  ROOT_PREFIX,
+  ALL_ITEM_PREFIX,
+  DONE_HELPER_PREFIX,
+};
 // TYPES
 export interface SchemaType {
   key: string;
@@ -14,13 +25,16 @@ export interface SchemaTypeObje {
   typeName: string;
   keys: SchemaType[];
   currentHelpers: string[];
+  isGetAll: boolean;
 }
 export type HelperFunction<NodeType, ResultType, ArgsType> = (p: {
+  crudeNode: any;
   node: NodeType;
   args: ArgsType;
   next: (node: ResultType) => any;
+  done: (node: ResultType) => any;
   baseNode: any;
-}) => ResultType;
+}) => any;
 
 export interface HelperType<NodeType = any, ResultType = any, Args = any> {
   regex: RegExp;

@@ -1,10 +1,5 @@
 import { helpersHandler } from './helpers-handler';
-import {
-  ALL_ITEM_KEY,
-  SchemaTypeObje,
-  HelperRoot,
-  NONE_TYPE,
-} from './constants';
+import { SchemaTypeObje, HelperRoot, NONE_TYPE } from './constants';
 
 interface GetItemsProps {
   node: any;
@@ -13,19 +8,18 @@ interface GetItemsProps {
   baseNode: any;
   helpers: HelperRoot;
 }
-function getItems({
+
+async function getItems<T>({
   node,
   helpers,
   schema,
   baseNode,
   allSchema,
-}: GetItemsProps): any {
-  if (
-    typeof node !== 'object' ||
-    schema.keys.find(item => item.key === ALL_ITEM_KEY)
-  ) {
-    return helpersHandler({
+}: GetItemsProps): Promise<T> {
+  if (typeof node !== 'object' || schema.isGetAll) {
+    return helpersHandler<T>({
       node,
+      crudeNode: node,
       helperNames: schema.currentHelpers,
       baseNode,
       helpers,
@@ -36,32 +30,40 @@ function getItems({
       helpers,
       helperNames: schema.currentHelpers,
       baseNode,
-      node: node.map(item =>
-        getItems({ node: item, schema, allSchema, baseNode, helpers })
+      crudeNode: node,
+      node: await Promise.all(
+        node.map(item =>
+          getItems({ node: item, schema, allSchema, baseNode, helpers })
+        )
       ),
     });
   }
 
   const rootObje: any = {};
-  schema.keys.forEach(schemaItem => {
-    const childNode = node[schemaItem.key];
-    if (typeof node !== 'object' || schemaItem.type === NONE_TYPE) {
-      rootObje[schemaItem.key] = helpersHandler({
-        node: childNode,
-        helperNames: schemaItem.helpers,
-        baseNode,
-        helpers,
-      });
-    } else {
+  await Promise.all(
+    schema.keys.map(async schemaItem => {
+      const childNode = node[schemaItem.key];
+      if (typeof node !== 'object' || schemaItem.type === NONE_TYPE) {
+        rootObje[schemaItem.key] = await helpersHandler({
+          node: childNode,
+          crudeNode: childNode,
+          helperNames: schemaItem.helpers,
+          baseNode,
+          helpers,
+        });
+        return;
+      }
+
       const currentType = allSchema.find(
         ({ typeName }) => schemaItem.type === typeName
       );
       if (currentType) {
-        rootObje[schemaItem.key] = helpersHandler({
+        rootObje[schemaItem.key] = await helpersHandler({
           baseNode,
+          crudeNode: childNode,
           helpers,
           helperNames: schemaItem.helpers,
-          node: getItems({
+          node: await getItems({
             allSchema,
             node: childNode,
             baseNode,
@@ -69,13 +71,13 @@ function getItems({
             schema: currentType,
           }),
         });
-      } else {
-        rootObje[schemaItem.key] = null;
       }
-    }
-  });
+    })
+  );
+
   return helpersHandler({
     node: rootObje,
+    crudeNode: node,
     helpers,
     helperNames: schema.currentHelpers,
     baseNode,

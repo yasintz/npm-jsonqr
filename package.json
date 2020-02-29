@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "start": "tsdx watch",
+    "start:example": "node example/index.js",
     "build": "tsdx build",
     "test": "tsdx test",
     "lint": "tsdx lint",
@@ -28,6 +29,13 @@
   "name": "jsonqr",
   "author": "yasintz",
   "module": "dist/jsonqr.esm.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yasintz/npm-jsonqr"
+  },
+  "bugs": {
+    "url": "https://github.com/yasintz/npm-jsonqr/issues"
+  },
   "devDependencies": {
     "@types/jest": "^25.1.3",
     "husky": "^4.2.3",

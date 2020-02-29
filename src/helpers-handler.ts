@@ -3,8 +3,10 @@ import { HelperRoot } from './constants';
 
 interface HelperHandlerProps {
   node: any;
+  crudeNode: any;
   helperStr: string;
   next: (n: any) => any;
+  done: (n: any) => any;
   baseNode: any;
   helpers: HelperRoot;
 }
@@ -12,6 +14,7 @@ interface HelperHandlerProps {
 interface HelpersHandlerProps {
   node: any;
   baseNode: any;
+  crudeNode: any;
   helpers: HelperRoot;
   helperNames: string[];
 }
@@ -30,7 +33,9 @@ function helperHandler({
   helperStr,
   next,
   node,
+  done,
   helpers,
+  crudeNode,
 }: HelperHandlerProps) {
   const helperObj = Object.values(helpers).find(
     helper => helperStr.matchAll(helper.regex).next().value
@@ -39,38 +44,42 @@ function helperHandler({
   if (helperObj) {
     return helperObj.helper({
       node,
+      crudeNode,
       args: parseArgs(helperStr, helperObj.regex),
       next,
+      done,
       baseNode: deepCopy(baseNode),
     });
   }
   return next(node);
 }
 
-function helpersHandler({
+async function helpersHandler<T>({
   helpers,
   helperNames,
   node,
   baseNode,
+  crudeNode,
 }: HelpersHandlerProps) {
-  if (helperNames.length === 0) {
-    return node;
-  }
-  return Array.from(helperNames)
-    .reverse()
-    .reduce<(n: any) => void>(
-      (next, helperStr) => {
+  return new Promise<T>(resolve => {
+    if (helperNames.length === 0) {
+      return node;
+    }
+    Array.from(helperNames)
+      .reverse()
+      .reduce<(n: any) => void>((next, helperStr) => {
         return refinedNode =>
           helperHandler({
             node: refinedNode,
+            done: resolve,
+            crudeNode,
             helperStr,
             next,
             baseNode,
             helpers,
           });
-      },
-      n => n
-    )(node);
+      }, resolve)(node);
+  });
 }
 
 export { helpersHandler, helperHandler };

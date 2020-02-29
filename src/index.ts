@@ -1,19 +1,27 @@
 import getItems from './get-items';
-import { HelperRoot, HelperFunction } from './constants';
+import {
+  HelperRoot,
+  HelperFunction,
+  ROOT_PREFIX,
+  DONE_HELPER_PREFIX,
+} from './constants';
 import deepCopy from './deep-copy';
 import schemaCreator from './schema-creator';
 
 function JsonQr<Node = any>() {
   const baseHelpers: HelperRoot = {};
 
-  function parse(node: any, schema: string) {
-    const options = { rootPrefix: '@' };
+  async function parse<ResultType = any>(
+    node: Node,
+    schema: string
+  ): Promise<ResultType | Node> {
     if (typeof node !== 'object' || typeof node === 'undefined' || !node) {
       return node;
     }
+
     const schemaArray = schemaCreator(schema);
     const rootTypeIndex = schemaArray.findIndex(
-      item => item.typeName === options.rootPrefix
+      item => item.typeName === ROOT_PREFIX
     );
 
     if (rootTypeIndex === -1) {
@@ -23,7 +31,7 @@ function JsonQr<Node = any>() {
     const rootType = schemaArray[rootTypeIndex];
     const copyNode = deepCopy(node);
 
-    return getItems({
+    return getItems<ResultType>({
       node: copyNode,
       schema: rootType,
       allSchema: schemaArray,
@@ -41,6 +49,8 @@ function JsonQr<Node = any>() {
       helper: fn,
     };
   }
+
+  registerHelper(DONE_HELPER_PREFIX, props => props.next(props.node));
 
   return { parse, registerHelper };
 }
