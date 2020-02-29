@@ -121,7 +121,7 @@ yarn run test
 
 ## Author
 
-👤 **yasintz**
+[👤 **yasintz**]('https://github.com/yasintz')
 
 ## Show your support
 
