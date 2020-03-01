@@ -39,11 +39,11 @@ const EXAMPLE_DATA = {
   greeting: 'Hello, Sandra Benton! You have 10 unread messages.',
   favoriteFruit: 'apple',
 };
-instance.registerHelper('search', ({ next, node }) => {
-  console.log(node);
-  setTimeout(() => {
-    next({ node });
-  }, 1500);
+
+instance.registerHelper('search', ({ next, node, args }) => {
+  console.log(args);
+
+  next(node);
 });
 
 (async () => {
@@ -54,10 +54,12 @@ instance.registerHelper('search', ({ next, node }) => {
         id;
     }
     Root{
-        friends:FriendsType;
-        // index;
-        // _id > search(ali,veli) > search() > search();
-        // latitude >search();
+        friends : FriendsType
+                  > search( [0.name.0] , picture);
+          index;
+          _id > search(1,2) 
+              > search("sring1",'string2');
+          latitude > search();
     }
     `
   );

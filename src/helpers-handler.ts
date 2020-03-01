@@ -1,4 +1,5 @@
 import deepCopy from './deep-copy';
+import _get from 'lodash.get';
 import { HelperRoot } from './constants';
 
 interface HelperHandlerProps {
@@ -19,13 +20,31 @@ interface HelpersHandlerProps {
   helperNames: string[];
 }
 
-function parseArgs(helperString: string, regex: RegExp) {
-  const args = helperString
-    .matchAll(regex)
-    .next()
-    .value[1].split(',') as string[];
+function parseArgs(
+  helperString: string,
+  regex: RegExp,
+  node: any,
+  baseNode: any
+) {
+  const argsString: string = helperString.matchAll(regex).next().value[1];
 
-  return args;
+  const args = argsString.split(',').filter(n => n);
+  const newArgs = [];
+  for (let arg of args) {
+    arg = arg.split("'").join('"');
+    try {
+      const parsedArg = JSON.parse(arg);
+      newArgs.push(parsedArg);
+    } catch (error) {
+      if (arg[0] === '[' && arg.slice(-1) === ']') {
+        newArgs.push(_get(node, arg.slice(1, -1)));
+      } else {
+        newArgs.push(_get(baseNode, arg));
+      }
+    }
+  }
+
+  return newArgs;
 }
 
 function helperHandler({
@@ -45,7 +64,7 @@ function helperHandler({
     return helperObj.helper({
       node,
       crudeNode,
-      args: parseArgs(helperStr, helperObj.regex),
+      args: parseArgs(helperStr, helperObj.regex, node, baseNode),
       next,
       done,
       baseNode: deepCopy(baseNode),
