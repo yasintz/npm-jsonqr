@@ -51,18 +51,18 @@ instance.registerHelper('search', ({ next, node, args }) => {
     EXAMPLE_DATA,
     `
     FriendsType $ {
-        id;
+        id >search('from type');
     }
     Root{
-        friends : FriendsType
-                  > search( [0.name.0] , picture);
-          index;
-          _id > search(1,2) 
-              > search("sring1",'string2');
-          latitude > search();
+        // friends : FriendsType
+        //           > search([0.name[0]], [0.name[1]], picture);
+        // index;
+        _id > search(1,2) 
+              // > search("sring1",'string2');
+        // latitude > search();
     }
     `
   );
   console.log('------------done---------------');
-  console.log(result);
+  // console.log(result);
 })();

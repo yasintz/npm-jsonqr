@@ -28,6 +28,7 @@ function parseArgs(
 ) {
   const argsString: string = helperString.matchAll(regex).next().value[1];
 
+  // FIXME: search("yasin,osman",varable) is not correct parsed
   const args = argsString.split(',').filter(n => n);
   const newArgs = [];
   for (let arg of args) {
