@@ -15,6 +15,7 @@ yarn install
 ## Usage
 
 ```js
+// const JsonQr = require('jsonqr').default;
 import JsonQr from 'jsonqr';
 
 const myParser = JsonQr(); // create a new instance
@@ -49,7 +50,9 @@ const schema = `
     }
 `;
 
-console.log(myParser.parse(node, schema));
+myParser.parse(node, schema).then(result=>{
+  console.log(result);
+})
 ```
 
 result
@@ -64,10 +67,6 @@ result
 ```
 ### Register Helper
 ```js
-import JsonQr from 'jsonqr';
-
-const myParser = JsonQr(); // create a new instance
-
 myParser.registerHelper('slice', ({ node, args, next }) => {
   try {
     if (Array.isArray(node)) {
@@ -101,7 +100,10 @@ const schema = `
         tags:  @slice(2,4);
     }
 `;
-console.log(myParser.parse(node, schema));
+
+myParser.parse(node, schema).then(result=>{
+  console.log(result);
+})
 ```
 
 result
