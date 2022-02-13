@@ -111,7 +111,7 @@ result
 ```json
 {
     "name": "Vega Cruz",
-    "tags": ["non", "exercitation"];
+    "tags": ["non", "exercitation"]
 }
 ```
 
